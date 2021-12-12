@@ -1,16 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int pai (int i) {
-    return (i - 1)/2;
-}
+#include "max_heap.h"
 
-int esquerda (int i) {
-    return (i * 2) + 1;
-}
+int pai (int i) {return (i - 1)/2;}
 
-int direita (int i) {
-    return (i * 2) + 2;
+int esquerda (int i) {return (i * 2) + 1;}
+
+int direita (int i) {return (i * 2) + 2;}
+
+int heap_maximum (int V[]) {return V[0];}
+
+/* Remove e retorna o elemento de V com a maior chave (prioridade) */
+int heap_extract_max (int V[], int size) {
+    if (size < 1) {printf("Erro: Heap underflow!\a");}
+    
+    int max = V[0];
+    V[0] = V[size-1];
+    size--;
+    max_heapify (V, size, 0);
+
+    return max;
 }
 
 void trocar (int V[], int a, int b) {
@@ -20,34 +30,69 @@ void trocar (int V[], int a, int b) {
 }
 
 void imprimir (int V[], int size) {
-    int i;
-    (i = 0; i < size; i++) {
-    printf("%d ", V[i]);
+    for(int i = 0; i < size; i++) {
+        printf("%d ", V[i]);
     }
     printf("\n");
 }
 
 void max_heapify (int V[], int size, int i) {
-    int e = esquerda (i);
-    int d = direita (i);
     int maior;
-    if ( (e < size) && (V[e] > V[i]) ) {
-    maior = e;
+    int esq = esquerda(i);
+    int dir = direita(i);
+
+    if(esq < size && V[esq] > V[i]) {
+        maior = esq; //maior é o filho da esquerda
     }
-    else {
-    maior = i;
+    else {maior = i;} //maior é o pai/raiz
+
+    if(dir < size && V[dir] > V[maior]) {
+        maior = dir; //maior é o filho da direita
     }
-    if ( (d < size) && (V[d] > V[maior]) ) {
-    maior = d;
-    }
-    if (maior != i) {
-    trocar (V, i, maior);
-    max_heapify (V, size, maior);
+
+    if(maior != i) {
+        trocar(V, i, maior);
+        max_heapify(V, size, maior);
     }
 }
 
-void heap_decrease_key (int v[], int i, int chave, int size) {
-    /*TERMINAR*/
+/* Aumenta o valor da chave (prioridade) do elemento x para um novo valor k*/
+void heap_increase_key (int V[], int i, int chave) {
+    if (chave < V[i]) {
+        printf("Erro: chave menor que atual!\a");
+        return;
+    }
+
+    V[i] = chave;
+
+    while ( i>0 && V[pai(i)] < V[i] ){
+        trocar (V, i, pai(i));
+        i = pai(i);
+    }
+}
+
+/* Diminui o valor da chave (prioridade) do elemento x para um novo valor k*/
+void heap_decrease_key (int V[], int i, int chave, int size) {
+    if (chave > V[i]) {
+        printf("Erro: chave maior que atual!\a");
+        return;
+    }
+
+    V[i] = chave;
+
+    while ( i>0 && V[pai(i)] > V[i] ) {
+        trocar (V, i, pai(i));
+        i = pai(i);
+    }
+
+    max_heapify(V, size, i);
+}
+
+/* Insere o elememento x no conjunto V */
+void max_heap_insert(int V[], int size, int chave) {
+    size++;
+    V[size-1] = INT_MIN;
+    heap_increase_key(V, size-1, chave);
 }
 
 int main () {
